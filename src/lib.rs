@@ -142,6 +142,7 @@ use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
 use std::ptr;
 use std::slice;
+use std::env;
 
 use super::winapi;
 use super::winapi::shared::winerror;
@@ -206,11 +207,20 @@ pub fn known_folder_videos() -> Option<PathBuf> {
     known_folder(&knownfolders::FOLDERID_Videos)
 }
 
+pub fn user_folder_fonts() -> Option<PathBuf> {
+    return env::var_os("userprofile")
+        .and_then(|u| if u.is_empty() { None } else {
+            let f = PathBuf::from(u).join("AppData\\Local\\Microsoft\\Windows\\Fonts");
+            if !f.is_dir() { None } else { Some(f) }
+        })
+}
+
 }
 
 #[cfg(target_os = "windows")]
 pub use self::target_windows::{
     known_folder, known_folder_profile, known_folder_roaming_app_data, known_folder_local_app_data,
     known_folder_music, known_folder_desktop, known_folder_documents, known_folder_downloads,
-    known_folder_pictures, known_folder_public, known_folder_templates, known_folder_videos
+    known_folder_pictures, known_folder_public, known_folder_templates, known_folder_videos,
+    user_folder_fonts
 };
